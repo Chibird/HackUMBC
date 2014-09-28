@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:drawable="@drawable/mm13"
+        android:duration="150"/>
+    <item
+        android:drawable="@drawable/mm14"
+        android:duration="150"/>
+    <item
+        android:drawable="@drawable/mm15"
+        android:duration="150"/>
+    <item
+        android:drawable="@drawable/mm16"
+        android:duration="150"/>
+    <item
+        android:drawable="@drawable/mm17"
+        android:duration="150"/>
+    <item
+        android:drawable="@drawable/mm18"
+        android:duration="150"/>
+    <item
+        android:drawable="@drawable/mm19"
+        android:duration="150"/>
+
+</animation-list>

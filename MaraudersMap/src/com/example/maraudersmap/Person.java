@@ -7,7 +7,7 @@ public class Person {
 	private String name;
 	private int id, bearing;
 	private double lat, lng;
-	private boolean isMoving;
+	private boolean isMoving, foot, selected;
 	
 	public Person(String name, int id, double lat, double lng, int bearing){
 		this.setName(name);
@@ -15,8 +15,26 @@ public class Person {
 		this.lat = lat;
 		this.lng = lng;
 		this.setBearing(bearing);
+		this.foot = true;
+		this.selected = false;
+	}
+	
+	public void toggleSelected(){
+		this.selected = !this.selected;
+	}
+	
+	public boolean getSelected(){
+		return selected;
 	}
 
+	public boolean getFoot(){
+		return foot;
+	}
+	
+	public void toggleFoot(){
+		this.foot = !this.foot;
+	}
+	
 	public void update(JSONObject person) {
 		try {
 			lat = person.getDouble("lat");
@@ -64,6 +82,11 @@ public class Person {
 
 	public void setBearing(int bearing) {
 		this.bearing = bearing;
+	}
+
+	public void setNotSelected() {
+		this.selected = false;
+		
 	}
 	
 }

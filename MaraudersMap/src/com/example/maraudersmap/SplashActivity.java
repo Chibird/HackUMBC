@@ -16,6 +16,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,9 +26,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 public class SplashActivity extends Activity implements View.OnClickListener {
 	SharedPreferences sp;
+	boolean clicked = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +38,10 @@ public class SplashActivity extends Activity implements View.OnClickListener {
 		setContentView(R.layout.activity_splash);
 		sp = getPreferences(Activity.MODE_PRIVATE);
 
-		findViewById(R.id.touchthispls).setOnClickListener(this);
+		ImageView myAnimation = (ImageView)findViewById(R.id.touchthispls);
+		AnimationDrawable myAnimDrawable = (AnimationDrawable) myAnimation.getDrawable();
+		myAnimDrawable.start();
+		myAnimation.setOnClickListener(this);
 
 	}
 
@@ -78,10 +84,29 @@ public class SplashActivity extends Activity implements View.OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		if (sp.contains("myID")) {
-			Data.id = sp.getInt("myID", -1);
-			startActivity(new Intent(SplashActivity.this, MainActivity.class));
-			finish();
+		if (sp.contains("myID") && !clicked) {
+			clicked = true;
+			
+			ImageView myAnimation = (ImageView)findViewById(R.id.touchthispls);
+			myAnimation.setImageResource(R.drawable.bg_anim2);
+			AnimationDrawable myAnimDrawable = (AnimationDrawable) myAnimation.getDrawable();
+			myAnimDrawable.start();
+			myAnimDrawable.setOneShot(true);
+			
+			new Handler().postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					Data.id = sp.getInt("myID", -1);
+					startActivity(new Intent(SplashActivity.this, MainActivity.class));
+					finish();					
+				}
+			}, 3000);
+			
+			
+			
+			
+			
 		} else {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
@@ -99,8 +124,21 @@ public class SplashActivity extends Activity implements View.OnClickListener {
 							String value = input.getText().toString();
 
 							new RegisterTask().execute(value);
-							startActivity(new Intent(SplashActivity.this, MainActivity.class));
-							finish();
+							ImageView myAnimation = (ImageView)findViewById(R.id.touchthispls);
+							myAnimation.setImageResource(R.drawable.bg_anim2);
+							AnimationDrawable myAnimDrawable = (AnimationDrawable) myAnimation.getDrawable();
+							myAnimDrawable.start();
+							myAnimDrawable.setOneShot(true);
+							
+							new Handler().postDelayed(new Runnable() {
+								
+								@Override
+								public void run() {
+									Data.id = sp.getInt("myID", -1);
+									startActivity(new Intent(SplashActivity.this, MainActivity.class));
+									finish();					
+								}
+							}, 3000);
 						}
 					});
 
@@ -108,10 +146,9 @@ public class SplashActivity extends Activity implements View.OnClickListener {
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,
 								int whichButton) {
-							
 						}
 					});
-
+			clicked = false;
 			alert.show();
 		}
 		// see http://androidsnippets.com/prompt-user-input-with-an-alertdialog

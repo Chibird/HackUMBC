@@ -218,7 +218,7 @@ public class MainActivity extends FragmentActivity implements
 		new updateLocation().execute("http://54.165.53.129/update_loc.php?id="
 				+ Data.id + "&lat=" + location.getLatitude() + "&lng="
 				+ location.getLongitude() + "&bearing=" + Data.orientation);
-		mapfrag.updateMap();
+//		mapfrag.updateMap();
 	}
 
 	float[] mGravity;
@@ -240,7 +240,7 @@ public class MainActivity extends FragmentActivity implements
 				SensorManager.getOrientation(R, orientation);
 				int azimut = (int) Math.round(Math.toDegrees(orientation[0]));
 				Data.orientation = azimut;
-
+				Log.i("baba",""+azimut);
 			}
 		}
 	}
