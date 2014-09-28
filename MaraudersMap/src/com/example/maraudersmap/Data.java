@@ -11,6 +11,8 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.drawable.PictureDrawable;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParser;
 
@@ -19,35 +21,46 @@ public class Data {
 	public static Bitmap rightFoot, leftFoot, umbcMap;
 	public static int id, orientation;
 	public static double lat, lng;
+	public static boolean foot = false;
 
-	public static Person addPerson (JSONObject person){
+	public static BitmapDescriptor currFootSprite() {
+		if (foot) {
+			
+			return BitmapDescriptorFactory.fromResource(R.drawable.leftfoot);
+		} else {
+			return BitmapDescriptorFactory.fromResource(R.drawable.rightfoot);
+		}
+	}
+
+	public static Person addPerson(JSONObject person) {
 		Person newPerson = null;
 		try {
-			newPerson = new Person(person.getString("name"), person.getInt("id"), person.getDouble("lat"),
-								   person.getDouble("lng"), person.getInt("bearing"));
+			newPerson = new Person(person.getString("name"),
+					person.getInt("id"), person.getDouble("lat"),
+					person.getDouble("lng"), person.getInt("bearing"));
 		} catch (JSONException e) {
 		}
 		people.put(newPerson.getId(), newPerson);
 		return newPerson;
 	}
-	
-	public static void init(Context context){
+
+	public static void init(Context context) {
 		{
-			SVG svg = SVGParser.getSVGFromResource(context.getResources(), R.drawable.footleft);
+			SVG svg = SVGParser.getSVGFromResource(context.getResources(),
+					R.drawable.footleft);
 			PictureDrawable pictureDrawable = svg.createPictureDrawable();
-			rightFoot = Bitmap.createBitmap(pictureDrawable.getIntrinsicWidth(),pictureDrawable.getIntrinsicHeight(), Config.ARGB_8888);
+			rightFoot = Bitmap.createBitmap(
+					pictureDrawable.getIntrinsicWidth(),
+					pictureDrawable.getIntrinsicHeight(), Config.ARGB_8888);
 		}
-		
+
 		{
-			SVG svg = SVGParser.getSVGFromResource(context.getResources(), R.drawable.footright);
+			SVG svg = SVGParser.getSVGFromResource(context.getResources(),
+					R.drawable.footright);
 			PictureDrawable pictureDrawable = svg.createPictureDrawable();
-			leftFoot = Bitmap.createBitmap(pictureDrawable.getIntrinsicWidth(),pictureDrawable.getIntrinsicHeight(), Config.ARGB_8888);
+			leftFoot = Bitmap.createBitmap(pictureDrawable.getIntrinsicWidth(),
+					pictureDrawable.getIntrinsicHeight(), Config.ARGB_8888);
 		}
-		
-		{
-			SVG svg = SVGParser.getSVGFromResource(context.getResources(), R.drawable.maraudermaphome);
-			PictureDrawable pictureDrawable = svg.createPictureDrawable();
-			umbcMap = Bitmap.createBitmap(pictureDrawable.getIntrinsicWidth(),pictureDrawable.getIntrinsicHeight(), Config.ARGB_8888);
-		}
+
 	}
 }

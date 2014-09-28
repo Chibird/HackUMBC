@@ -39,9 +39,8 @@ import android.view.MenuItem;
 
 public class MainActivity extends FragmentActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener, 
-		LocationListener,
-		SensorEventListener{
+		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener,
+		SensorEventListener {
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
 	public static class ErrorDialogFragment extends DialogFragment {
@@ -114,7 +113,7 @@ public class MainActivity extends FragmentActivity implements
 		}
 		return true;
 	}
-	
+
 	LocationRequest mLocationRequest;
 	private SensorManager mSensorManager;
 
@@ -123,21 +122,20 @@ public class MainActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		// Create the LocationRequest object
-        mLocationRequest = LocationRequest.create();
-        // Use high accuracy
-        mLocationRequest.setPriority(
-                LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // Set the update interval to 5 seconds
-        mLocationRequest.setInterval(5000);
-        // Set the fastest update interval to 1 second
-        mLocationRequest.setFastestInterval(1000);
-        
-        mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-        
-        if(mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null){
-        }
-        
-        mapfrag = new MiniMapFragment();
+		mLocationRequest = LocationRequest.create();
+		// Use high accuracy
+		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		// Set the update interval to 5 seconds
+		mLocationRequest.setInterval(5000);
+		// Set the fastest update interval to 1 second
+		mLocationRequest.setFastestInterval(500);
+
+		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+		if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null) {
+		}
+
+		mapfrag = new MiniMapFragment();
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.frag_window, mapfrag).commit();
 		Data.init(this);
@@ -152,7 +150,7 @@ public class MainActivity extends FragmentActivity implements
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	
+
 	public MiniMapFragment mapfrag;
 
 	@Override
@@ -162,17 +160,18 @@ public class MainActivity extends FragmentActivity implements
 		mLocationClient = new LocationClient(this, this, this);
 		mLocationClient.connect();
 	}
-	
+
 	@Override
 	protected void onStop() {
-		// Disconnecting the client invalidates it.
-        mLocationClient.disconnect();
-        super.onStop();
+		new updateLocation().execute("http://54.165.53.129/stop.php?id="
+				+ Data.id);
+		mLocationClient.disconnect();
+		super.onStop();
 	}
-	
+
 	public Location mCurrentLocation;
 
-	public Location getLastLocation(){
+	public Location getLastLocation() {
 		return mCurrentLocation;
 	}
 
@@ -191,65 +190,67 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public void onConnectionFailed(ConnectionResult result) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onConnected(Bundle connectionHint) {
-            mLocationClient.requestLocationUpdates(mLocationRequest, this);
-		
+		mLocationClient.requestLocationUpdates(mLocationRequest, this);
+
 	}
 
 	@Override
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-    public void onLocationChanged(Location location) {
-        // Report to the UI that the location was updated
+	public void onLocationChanged(Location location) {
+		// Report to the UI that the location was updated
 		this.mCurrentLocation = location;
-        String msg = "Updated Location: " +
-                Double.toString(location.getLatitude()) + "," +
-                Double.toString(location.getLongitude());
-        Data.lat = location.getLatitude();
-        Data.lng = location.getLongitude();
-        Log.i("baba","id " + Data.id + "" + msg);
-        new getUpdateFeedTask().execute("http://54.165.53.129/get_map.php");
-		new updateLocation().execute("http://54.165.53.129/update_loc.php?id=" + Data.id + "&lat=" + location.getLatitude() + "&lng=" + location.getLongitude() + "&bearing=" + Data.orientation);
+		String msg = "Updated Location: "
+				+ Double.toString(location.getLatitude()) + ","
+				+ Double.toString(location.getLongitude());
+		Data.lat = location.getLatitude();
+		Data.lng = location.getLongitude();
+		Log.i("baba", "id " + Data.id + "" + msg);
+		new updateLocation().execute("http://54.165.53.129/update_loc.php?id="
+				+ Data.id + "&lat=" + location.getLatitude() + "&lng="
+				+ location.getLongitude() + "&bearing=" + Data.orientation);
 		mapfrag.updateMap();
-    }
+	}
 
 	float[] mGravity;
 	float[] mGeomagnetic;
-	
+
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-	    if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-	        mGravity = event.values;
-	    if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-	        mGeomagnetic = event.values;
-	    if (mGravity != null && mGeomagnetic != null) {
-	        float R[] = new float[9];
-	        float I[] = new float[9];
-	        boolean success = SensorManager.getRotationMatrix(R, I, mGravity,
-	                mGeomagnetic);
-	        if (success) {
-	            float orientation[] = new float[3];
-	            SensorManager.getOrientation(R, orientation);
-	            int azimut = (int) Math.round(Math.toDegrees(orientation[0]));
-	            Data.orientation = azimut;
-	            
-	        }
-	    }
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+			mGravity = event.values;
+		if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+			mGeomagnetic = event.values;
+		if (mGravity != null && mGeomagnetic != null) {
+			float R[] = new float[9];
+			float I[] = new float[9];
+			boolean success = SensorManager.getRotationMatrix(R, I, mGravity,
+					mGeomagnetic);
+			if (success) {
+				float orientation[] = new float[3];
+				SensorManager.getOrientation(R, orientation);
+				int azimut = (int) Math.round(Math.toDegrees(orientation[0]));
+				Data.orientation = azimut;
+
+			}
+		}
 	}
+
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	class updateLocation extends AsyncTask<String, Void, Void> {
 
 		@Override
@@ -262,7 +263,7 @@ public class MainActivity extends FragmentActivity implements
 
 			try {
 				response = client.execute(httpGet);
-				
+
 				HttpEntity entity = response.getEntity();
 				InputStream stream = entity.getContent();
 				int b;
@@ -276,59 +277,7 @@ public class MainActivity extends FragmentActivity implements
 			}
 			return null;
 		}
-		
-	}
-
-	class getUpdateFeedTask extends AsyncTask<String, Void, Void> {
-
-		@Override
-		protected Void doInBackground(String... params) {
-			
-			String url = params[0];
-			HttpGet httpGet = new HttpGet(url);
-			HttpClient client = new DefaultHttpClient();
-			HttpResponse response;
-			StringBuilder stringBuilder = new StringBuilder();
-
-			try {
-				response = client.execute(httpGet);
-				
-				HttpEntity entity = response.getEntity();
-				InputStream stream = entity.getContent();
-				int b;
-				while ((b = stream.read()) != -1) {
-					stringBuilder.append((char) b);
-				}
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			String q = stringBuilder.toString();
-
-			try {
-				JSONArray jsonData = new JSONArray(q);
-				for(int i = 0; i < jsonData.length(); i++){
-					JSONObject  jsonPerson = jsonData.getJSONObject(i);
-					int jsonID = jsonPerson.getInt("id");
-					
-					if(Data.people.containsKey(jsonID)){
-						Data.people.get(jsonID).update(jsonPerson);
-					} else {
-						Data.addPerson(jsonPerson);
-					}
-				}
-			} catch (Exception e) {
-			}
-			;
-
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-		}
 
 	}
+
 }
